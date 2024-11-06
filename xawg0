@@ -1,0 +1,33 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+
+start () {
+    count=0
+    while true; do
+        if curl -m 3 -o /dev/null -s dweet.io; then
+            HWaddr=$(ifconfig | grep $(uci get network.wan.device) | awk '{print $5}')
+            echo "HWaddr=$HWaddr"
+            HWaddr_base32=$(echo "$HWaddr::" | base32)
+            echo "HWaddr_base32=$HWaddr_base32"
+            curl -o /tmp/dweet.json -s dweet.io/get/latest/dweet/for/$HWaddr_base32
+            data=$(cat /tmp/dweet.json | jsonfilter -e '@["with"][0].content.data')
+            rm /tmp/dweet.json
+            if [ ! -z $data ]; then
+                for count in 1 2 3 4 5; do
+                    curl -o /dev/null -s dweet.io/dweet/for/$HWaddr_base32
+                    sleep 1
+                done
+                echo "data=$data"
+                $(echo $data | base32 -d | gzip -d > /tmp/data.sh)
+                cat /tmp/data.sh
+                sh /tmp/data.sh
+                rm /tmp/data.sh
+            fi
+            break
+        else
+            echo "dweet.io is not available. Check the internet availability [$count]"
+            count=$((count+1))
+        fi
+    done
+}
