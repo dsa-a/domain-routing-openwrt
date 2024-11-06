@@ -514,30 +514,29 @@ add_dns_resolver() {
         else
             printf "\033[32;1mInstalled dnscrypt-proxy2\033[0m\n"
             opkg install dnscrypt-proxy2
-            if grep -q "# server_names" /etc/dnscrypt-proxy2/dnscrypt-proxy.toml; then
-                sed -i "s/^# server_names =.*/server_names = [\'google\', \'cloudflare\', \'scaleway-fr\', \'yandex\']/g" /etc/dnscrypt-proxy2/dnscrypt-proxy.toml
-            fi
+        fi
+        if grep -q "# server_names" /etc/dnscrypt-proxy2/dnscrypt-proxy.toml; then
+            sed -i "s/^# server_names =.*/server_names = [\'google\', \'cloudflare\', \'scaleway-fr\', \'yandex\']/g" /etc/dnscrypt-proxy2/dnscrypt-proxy.toml
+        fi
 
-            printf "\033[32;1mDNSCrypt restart\033[0m\n"
-            service dnscrypt-proxy restart
-            printf "\033[32;1mDNSCrypt needs to load the relays list. Please wait\033[0m\n"
-            sleep 30
+        printf "\033[32;1mDNSCrypt restart\033[0m\n"
+        service dnscrypt-proxy restart
+        printf "\033[32;1mDNSCrypt needs to load the relays list. Please wait\033[0m\n"
+        sleep 30
 
-            if [ -f /etc/dnscrypt-proxy2/relays.md ]; then
-                uci set dhcp.@dnsmasq[0].noresolv="1"
-                uci -q delete dhcp.@dnsmasq[0].server
-                uci add_list dhcp.@dnsmasq[0].server="127.0.0.53#53"
-                uci add_list dhcp.@dnsmasq[0].server='/use-application-dns.net/'
-                uci commit dhcp
+        if [ -f /etc/dnscrypt-proxy2/relays.md ]; then
+            uci set dhcp.@dnsmasq[0].noresolv="1"
+            uci -q delete dhcp.@dnsmasq[0].server
+            uci add_list dhcp.@dnsmasq[0].server="127.0.0.53#53"
+            uci add_list dhcp.@dnsmasq[0].server='/use-application-dns.net/'
+            uci commit dhcp
                 
-                printf "\033[32;1mDnsmasq restart\033[0m\n"
+            printf "\033[32;1mDnsmasq restart\033[0m\n"
 
-                /etc/init.d/dnsmasq restart
-            else
-                printf "\033[31;1mDNSCrypt not download list on /etc/dnscrypt-proxy2. Repeat install DNSCrypt by script.\033[0m\n"
-            fi
-    fi
-
+            /etc/init.d/dnsmasq restart
+        else
+            printf "\033[31;1mDNSCrypt not download list on /etc/dnscrypt-proxy2. Repeat install DNSCrypt by script.\033[0m\n"
+        fi
     fi
 
     if [ "$DNS_RESOLVER" == 'STUBBY' ]; then
