@@ -969,7 +969,7 @@ fi
 
 printf "\033[31;1mAll actions performed here cannot be rolled back automatically.\033[0m\n"
 
-check_repo
+#check_repo
 
 add_packages
 
