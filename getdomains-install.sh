@@ -513,6 +513,7 @@ add_dns_resolver() {
             printf "\033[32;1mDNSCrypt2 already installed\033[0m\n"
         else
             printf "\033[32;1mInstalled dnscrypt-proxy2\033[0m\n"
+            opkg update
             opkg install dnscrypt-proxy2
         fi
         if grep -q "# server_names" /etc/dnscrypt-proxy2/dnscrypt-proxy.toml; then
@@ -546,6 +547,7 @@ add_dns_resolver() {
             printf "\033[32;1mStubby already installed\033[0m\n"
         else
             printf "\033[32;1mInstalled stubby\033[0m\n"
+            opkg update
             opkg install stubby
 
             printf "\033[32;1mConfigure Dnsmasq for Stubby\033[0m\n"
